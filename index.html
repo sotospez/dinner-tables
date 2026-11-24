@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Τραπέζια γάμου</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=GFS+Didot&family=Commissioner:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* VOICE: τρυφερό αλλά πρακτικό, σαν το χειρόγραφο πλάνο τραπεζιών του κέντρου
+   IDEA: το σχέδιο αίθουσας με τα στρογγυλά τραπέζια και τις καρτέλες θέσεων
+   PICTURE: η ίδια η κάτοψη: στρογγυλά τραπέζια, θέσεις χρωματισμένες ανά σόι
+   COLOUR and TYPE: λευκό, βαθύ δαμασκηνί, χρυσό· GFS Didot τίτλοι, Commissioner κείμενο
+   LAYOUT: τίτλος + κουμπί, κάτοψη, μετά ρυθμίσεις σε στήλες, μετά λίστες */
+:root{color-scheme:light dark;
+--bg:light-dark(#ffffff,#141217);--ink:light-dark(#221b26,#eee8f0);--mut:light-dark(#6c6370,#a99fae);
+--plum:light-dark(#5b2a4f,#d7a3c7);--plumbg:light-dark(#f4ebf1,#2a1f28);--gold:light-dark(#a87a1f,#e2bb63);
+--line:light-dark(#e7e0e6,#2f2a33);--panel:light-dark(#faf7f9,#1b181e);--bad:light-dark(#b3261e,#ff8a80);--badbg:light-dark(#fdeceb,#3a1b1a);
+--ok:light-dark(#1f6b45,#7fd3a5);--table:light-dark(#fffdf8,#221e25)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Commissioner,system-ui,sans-serif;overflow-x:clip}
+.band{padding:clamp(22px,3.5vw,48px) max(5vw,16px);max-width:1340px;margin:0 auto}
+h1,h2{font-family:"GFS Didot",Georgia,serif;font-weight:400;line-height:1.05;text-wrap:balance;margin:0}
+h1{font-size:clamp(32px,5vw,48px);color:var(--plum)}h2{font-size:26px;margin-bottom:12px}
+.top{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end;justify-content:space-between;border-bottom:1px solid var(--line);padding-bottom:18px}
+.sub{color:var(--mut);margin:6px 0 0;font-size:15px}
+button,select,input{font:inherit;font-size:16px;color:var(--ink)}
+button{min-height:44px;padding:0 16px;border-radius:10px;border:1px solid var(--line);background:var(--bg);cursor:pointer}
+button:hover{border-color:var(--plum)}button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.primary{background:var(--plum);color:var(--bg);border-color:var(--plum);font-weight:500}
+input,select{min-height:44px;padding:0 10px;border-radius:8px;border:1px solid var(--line);background:var(--bg)}
+input[type=number]{width:76px}
+.stats{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0 6px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:8px 14px;font-size:14px;color:var(--mut)}
+.stat b{display:block;font-size:22px;color:var(--ink);font-weight:500}
+.warn{background:var(--badbg);color:var(--bad);border-radius:10px;padding:10px 14px;margin:10px 0;font-size:15px}
+.floor{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px;margin-top:14px}
+.tcard{border:1px solid var(--line);border-radius:16px;padding:12px;background:var(--panel)}
+.tcard svg{display:block;width:170px;height:170px;margin:0 auto}
+.tcard ol{margin:6px 0 0;padding-left:24px;font-size:14px}.tcard li{padding:1px 0}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:0}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:14px;color:var(--mut);margin-top:12px}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr));gap:18px}
+.box{border:1px solid var(--line);border-radius:16px;padding:16px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:6px 0}
+.row input[type=text]{flex:1 1 140px}
+.x{min-width:44px;padding:0;color:var(--mut)}
+.list{max-height:none}
+.pill{font-size:13px;padding:2px 8px;border-radius:99px;background:var(--plumbg);color:var(--plum);white-space:nowrap}
+.pill.nv{background:var(--badbg);color:var(--bad)}
+textarea{width:100%;min-height:110px;font:inherit;font-size:16px;padding:10px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+.hint{font-size:13px;color:var(--mut);margin:4px 0}
+table{width:100%;border-collapse:collapse;font-size:15px}th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line)}
+th{font-weight:500;color:var(--mut);font-size:14px}
+h3{font-size:18px;font-weight:500;margin:22px 0 6px}td.n,th.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.stale{color:var(--gold);font-size:14px}
+pre,.scroll{overflow-x:auto}
+@media(max-width:600px){table{font-size:13px}.stack thead{display:none}.stack tr{display:grid;padding-block:10px}.stack td{display:flow-root;border:0;padding:3px 0;padding-inline-start:8em;text-align:start}.stack td::before{content:attr(data-l);float:inline-start;width:7.5em;margin-inline-start:-8em;white-space:normal}.stack td:empty{display:none}}
+@media(prefers-reduced-motion:no-preference){.tcard{transition:transform .25s}.tcard.pop{animation:pop .4s}@keyframes pop{from{transform:scale(.97);opacity:.6}}}
+</style>
+<script>new MutationObserver(()=>{for(const c of document.querySelectorAll('.stack td:not([data-l])')){let i=0,p=c;while(p=p.previousElementSibling)i+=p.colSpan;c.dataset.l=c.closest('table').rows[0].cells[i]?.textContent||''}}).observe(document,{childList:true,subtree:true})</script>
+</head>
+<body>
+<div class="band">
+  <div class="top">
+    <div>
+      <h1>Τραπέζια γάμου</h1>
+      <p class="sub">Βάλε τραπέζια, καλεσμένους και κανόνες· το πρόγραμμα βρίσκει την καλύτερη διάταξη.</p>
+    </div>
+    <div class="row">
+      <button class="primary" id="go">Βρες τη διάταξη</button>
+      <button id="copy">Αντιγραφή λίστας</button>
+    </div>
+  </div>
+  <div id="stats" class="stats"></div>
+  <div id="warns"></div>
+  <div id="floor" class="floor" aria-live="polite"></div>
+  <div id="legend" class="legend"></div>
+  <p class="hint" id="sample">Τα αρχικά ονόματα είναι φανταστικό δείγμα. Σβήσ' τα ή κάνε «Καθαρισμός» και βάλε τους δικούς σου.</p>
+</div>
+
+<div class="band cols">
+  <div class="box">
+    <h2>Τραπέζια</h2>
+    <div id="tables"></div>
+    <div class="row"><button id="addT">+ Τραπέζι</button>
+      <input type="number" id="qn" value="5" min="1" aria-label="Πλήθος"> × <input type="number" id="qc" value="10" min="1" aria-label="Θέσεις"><button id="addQ">Προσθήκη</button></div>
+    <p class="hint">Χωρητικότητα: <span id="capinfo"></span></p>
+  </div>
+  <div class="box">
+    <h2>Καλεσμένοι</h2>
+    <div class="row"><input type="search" id="gq" placeholder="Αναζήτηση" aria-label="Αναζήτηση καλεσμένου" style="flex:1"></div>
+    <div id="guests"></div>
+    <div class="row"><button id="addG">+ Καλεσμένος</button></div>
+    <p class="hint">Μαζική εισαγωγή: ένας ανά γραμμή, «Όνομα, Σόι».</p>
+    <textarea id="bulk" placeholder="Κώστας Παπαδόπουλος, Νύφης – Παπαδόπουλοι&#10;Ελένη Παπαδοπούλου, Νύφης – Παπαδόπουλοι"></textarea>
+    <div class="row"><button id="bulkGo">Προσθήκη όλων</button></div>
+  </div>
+  <div class="box">
+    <h2>Κανόνες</h2>
+    <div class="row">
+      <select id="ra" aria-label="Πρώτος καλεσμένος"></select>
+      <select id="rt" aria-label="Σχέση">
+        <option value="must">μαζί υποχρεωτικά</option>
+        <option value="never">ποτέ στο ίδιο τραπέζι</option>
+        <option value="p3">πολύ δεμένοι (+3)</option>
+        <option value="p1">ταιριάζουν (+1)</option>
+        <option value="m2">καλύτερα χωριστά (−2)</option>
+      </select>
+      <select id="rb" aria-label="Δεύτερος καλεσμένος"></select>
+      <button id="addR">Προσθήκη</button>
+    </div>
+    <div id="rerr" class="hint" style="color:var(--bad)"></div>
+    <div id="rels"></div>
+    <p class="hint" style="margin-top:14px">Πόσο να κρατάμε τα σόγια μαζί: <b id="wout"></b></p>
+    <input type="range" id="w" min="0" max="3" step="0.5" style="width:100%" aria-label="Βάρος σογιών">
+    <div class="row" style="margin-top:14px"><button id="reset">Επαναφορά δείγματος</button><button id="clear">Καθαρισμός</button></div>
+  </div>
+</div>
+
+<div class="band cols">
+  <div class="box">
+    <h2>Πού κάθεται ο καθένας</h2>
+    <p class="hint">Μπορείς να αλλάξεις τραπέζι με το χέρι· οι έλεγχοι ξανατρέχουν αμέσως.</p>
+    <div class="scroll"><table class="stack" id="who"></table></div>
+  </div>
+  <div class="box">
+    <h2>Ανά σόι</h2>
+    <div id="bysoi"></div>
+  </div>
+</div>
+
+<div class="band">
+  <div class="box">
+    <h2>Πώς δουλεύει και debug</h2>
+    <p>Το πρόγραμμα ενώνει πρώτα όσους πρέπει να κάθονται μαζί σε μία «ομάδα». Μετά φτιάχνει μια πρόχειρη διάταξη και τη βελτιώνει δεκάδες χιλιάδες φορές με <b>προσομοιωμένη ανόπτηση</b>: μετακινεί ή ανταλλάσσει ομάδες ανάμεσα σε τραπέζια και κρατάει ό,τι ανεβάζει το σκορ. Το σκορ κάθε τραπεζιού είναι το άθροισμα των προτιμήσεων (+3, +1, −2) και του μπόνους σογιού για κάθε ζευγάρι που κάθεται μαζί· κάθε «ποτέ μαζί» αφαιρεί 1.000 βαθμούς, οπότε πρακτικά δεν επιτρέπεται. Η αναζήτηση γίνεται 5 φορές από διαφορετική αφετηρία και κρατιέται η καλύτερη.</p>
+    <p class="hint">Η μέθοδος βρίσκει πολύ καλή διάταξη γρήγορα, αλλά δεν αποδεικνύει ότι είναι η απόλυτα καλύτερη· αυτό θα ήθελε solver βελτιστοποίησης (MaxSAT, CP-SAT) ή, στη χειρότερη περίπτωση, κάτι κοντά στο brute force.</p>
+    <div id="debug"></div>
+  </div>
+</div>
+
+<script>
+{
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const REL={must:'μαζί υποχρεωτικά',never:'ποτέ μαζί',p3:'πολύ δεμένοι +3',p1:'ταιριάζουν +1',m2:'καλύτερα χωριστά −2'};
+const VAL={p3:3,p1:1,m2:-2};
+const HUES=['#7a3b69','#c9a227','#2f6f8f','#3f8a52','#d0603e','#6a5acd','#d1528a','#3aa0a6','#8a8a2a','#8a5a3b'];
+let uid=100;const nid=p=>p+(++uid);
+
+function sample(){
+  const T=[{id:'t0',name:'Νυφικό',cap:6}];for(let i=1;i<=6;i++)T.push({id:'t'+i,name:'Τραπέζι '+i,cap:10});
+  const raw=[
+  ['Μαρία','Ζευγάρι','t0'],['Νίκος','Ζευγάρι','t0'],['Δέσποινα (κουμπάρα)','Φίλοι ζευγαριού','t0'],['Στέλιος (κουμπάρος)','Φίλοι ζευγαριού','t0'],['Άρης','Φίλοι ζευγαριού','t0'],['Ιφιγένεια','Φίλοι ζευγαριού','t0'],
+  ['Γιάννης Παπαδόπουλος','Νύφης – Παπαδόπουλοι'],['Ελένη Παπαδοπούλου','Νύφης – Παπαδόπουλοι'],['Θεία Σούλα','Νύφης – Παπαδόπουλοι'],['Θείος Μάκης','Νύφης – Παπαδόπουλοι'],['Κατερίνα Π.','Νύφης – Παπαδόπουλοι'],['Πέτρος Π.','Νύφης – Παπαδόπουλοι'],['Γιαγιά Ρήνα','Νύφης – Παπαδόπουλοι'],['Λευτέρης Π.','Νύφης – Παπαδόπουλοι'],
+  ['Χρήστος Γεωργίου','Νύφης – Γεωργίου'],['Βούλα Γεωργίου','Νύφης – Γεωργίου'],['Αλέκος Γ.','Νύφης – Γεωργίου'],['Τασούλα Γ.','Νύφης – Γεωργίου'],['Μιχάλης Γ.','Νύφης – Γεωργίου'],['Ρένα Γ.','Νύφης – Γεωργίου'],
+  ['Δημήτρης Κωνσταντίνου','Γαμπρού – Κωνσταντίνου'],['Φωτεινή Κωνσταντίνου','Γαμπρού – Κωνσταντίνου'],['Θείος Βαγγέλης','Γαμπρού – Κωνσταντίνου'],['Θεία Λίτσα','Γαμπρού – Κωνσταντίνου'],['Σπύρος Κ.','Γαμπρού – Κωνσταντίνου'],['Νίνα Κ.','Γαμπρού – Κωνσταντίνου'],['Παππούς Στάθης','Γαμπρού – Κωνσταντίνου'],['Ανδρέας Κ.','Γαμπρού – Κωνσταντίνου'],
+  ['Τάκης Αλεξίου','Γαμπρού – Αλεξίου'],['Ρούλα Αλεξίου','Γαμπρού – Αλεξίου'],['Ηλίας Α.','Γαμπρού – Αλεξίου'],['Ζωή Α.','Γαμπρού – Αλεξίου'],['Κώστας Α. (πρώην της Ζωής)','Γαμπρού – Αλεξίου'],
+  ['Λένα','Φίλοι ζευγαριού'],['Παύλος','Φίλοι ζευγαριού'],['Χαρά','Φίλοι ζευγαριού'],['Μάνος','Φίλοι ζευγαριού'],['Ειρήνη','Φίλοι ζευγαριού'],['Φίλιππος','Φίλοι ζευγαριού'],['Σοφία','Φίλοι ζευγαριού'],['Άλκης','Φίλοι ζευγαριού'],
+  ['Βασιλική (γραφείο)','Συνάδελφοι'],['Θάνος (γραφείο)','Συνάδελφοι'],['Μυρτώ (γραφείο)','Συνάδελφοι'],['Γρηγόρης (γραφείο)','Συνάδελφοι'],['Αθηνά (γραφείο)','Συνάδελφοι'],['Οδυσσέας (γραφείο)','Συνάδελφοι']];
+  const G=raw.map((r,i)=>({id:'g'+i,name:r[0],soi:r[1],fix:r[2]||''}));
+  const by=n=>G.find(g=>g.name===n).id;
+  const R=[['Μαρία','Νίκος','must'],['Γιάννης Παπαδόπουλος','Ελένη Παπαδοπούλου','must'],['Θεία Σούλα','Θείος Μάκης','must'],['Χρήστος Γεωργίου','Βούλα Γεωργίου','must'],
+  ['Δημήτρης Κωνσταντίνου','Φωτεινή Κωνσταντίνου','must'],['Θείος Βαγγέλης','Θεία Λίτσα','must'],['Τάκης Αλεξίου','Ρούλα Αλεξίου','must'],['Λένα','Παύλος','must'],['Χαρά','Μάνος','must'],
+  ['Ζωή Α.','Κώστας Α. (πρώην της Ζωής)','never'],['Θείος Μάκης','Θείος Βαγγέλης','never'],['Αλέκος Γ.','Λευτέρης Π.','never'],
+  ['Γιαγιά Ρήνα','Παππούς Στάθης','p3'],['Γιάννης Παπαδόπουλος','Δημήτρης Κωνσταντίνου','p3'],['Ελένη Παπαδοπούλου','Γιαγιά Ρήνα','p3'],['Ειρήνη','Βασιλική (γραφείο)','p1'],['Σπύρος Κ.','Πέτρος Π.','p1'],['Μιχάλης Γ.','Θάνος (γραφείο)','m2']];
+  return{tables:T,guests:G,rels:R.map(([a,b,t])=>({a:by(a),b:by(b),t})),w:1,res:null,stale:true};
+}
+let LAST=null;
+let S;try{S=JSON.parse(localStorage.getItem('wedseat')||'null')}catch(e){S=null}
+if(!S||!S.tables)S=sample();
+function save(){try{localStorage.setItem('wedseat',JSON.stringify(S))}catch(e){}}
+function changed(){S.stale=true;save();renderEditors();renderResult()}
+
+function soiColors(){const m={};let i=0;[...new Set(S.guests.map(g=>g.soi||'—'))].forEach(s=>{m[s]=HUES[i++%HUES.length]});return m}
+
+/* ---------- solver ---------- */
+function solve(){
+  const G=S.guests,T=S.tables,n=G.length,idx={};G.forEach((g,i)=>idx[g.id]=i);
+  const tix={};T.forEach((t,i)=>tix[t.id]=i);
+  const errs=[];
+  if(!T.length)return{err:['Πρόσθεσε τουλάχιστον ένα τραπέζι.']};
+  const cap=T.map(t=>Math.max(0,+t.cap||0)),total=cap.reduce((a,b)=>a+b,0);
+  if(total<n)return{err:[`Οι θέσεις (${total}) δεν φτάνουν για ${n} καλεσμένους.`]};
+  const par=[...Array(n).keys()],f=x=>par[x]===x?x:(par[x]=f(par[x]));
+  S.rels.forEach(r=>{if(r.t==='must'&&r.a in idx&&r.b in idx)par[f(idx[r.a])]=f(idx[r.b])});
+  const cm={};for(let i=0;i<n;i++){(cm[f(i)]=cm[f(i)]||[]).push(i)}
+  const C=Object.values(cm),cof=new Array(n);C.forEach((c,k)=>c.forEach(i=>cof[i]=k));
+  const W=new Float32Array(n*n),NV=new Uint8Array(n*n);
+  const ssz={};G.forEach(g=>{if(g.soi)ssz[g.soi]=(ssz[g.soi]||0)+1});
+  for(let i=0;i<n;i++)for(let j=i+1;j<n;j++)if(G[i].soi&&G[i].soi===G[j].soi){W[i*n+j]=W[j*n+i]=2*S.w/Math.max(1,ssz[G[i].soi]-1)}
+  S.rels.forEach(r=>{if(!(r.a in idx&&r.b in idx))return;const a=idx[r.a],b=idx[r.b];
+    if(r.t==='never'){NV[a*n+b]=NV[b*n+a]=1;if(cof[a]===cof[b])errs.push(`${G[a].name} και ${G[b].name}: είναι και «μαζί υποχρεωτικά» και «ποτέ μαζί».`)}
+    else if(VAL[r.t]!=null){W[a*n+b]+=VAL[r.t];W[b*n+a]+=VAL[r.t]}});
+  const cfix=C.map(c=>{const s=[...new Set(c.map(i=>G[i].fix).filter(x=>x in tix))];if(s.length>1)errs.push(`Η ομάδα «${c.map(i=>G[i].name).join(', ')}» είναι κλειδωμένη σε διαφορετικά τραπέζια.`);return s.length?tix[s[0]]:-1});
+  const csz=C.map(c=>c.length),maxc=Math.max(...cap);
+  C.forEach((c,k)=>{const lim=cfix[k]>=0?cap[cfix[k]]:maxc;if(csz[k]>lim)errs.push(`Η ομάδα «${c.map(i=>G[i].name).join(', ')}» (${csz[k]} άτομα) δεν χωράει σε κανένα τραπέζι.`)});
+  if(errs.length)return{err:errs};
+  const m=T.length,t0=performance.now(),runs=[];
+  const cost=list=>{let s=0;for(let x=0;x<list.length;x++){const a=list[x];for(let y=x+1;y<list.length;y++){const b=list[y];s+=W[a*n+b]-1000*NV[a*n+b]}}return s};
+  const members=(tabC)=>{const l=[];tabC.forEach(k=>C[k].forEach(i=>l.push(i)));return l};
+  let best=null,bestScore=-1e18;
+  const order=C.map((c,k)=>k).sort((a,b)=>(cfix[b]>=0)-(cfix[a]>=0)||csz[b]-csz[a]);
+  for(let rs=0;rs<5;rs++){
+    const tab=Array.from({length:m},()=>[]),load=new Array(m).fill(0),where=new Array(C.length);
+    let ok=true;
+    order.forEach(k=>{let t=cfix[k];
+      if(t<0){let bs=-1e18;for(let j=0;j<m;j++){if(load[j]+csz[k]>cap[j])continue;let sc=(cap[j]-load[j])*0.3+Math.random()*2;
+        for(const q of tab[j])for(const a of C[q])for(const b of C[k])sc-=1000*NV[a*n+b];if(sc>bs){bs=sc;t=j}}}
+      if(t<0){ok=false;return}tab[t].push(k);load[t]+=csz[k];where[k]=t});
+    if(!ok){if(rs===4&&!best)return{err:['Δεν βρέθηκε τρόπος να χωρέσουν οι ομάδες. Πρόσθεσε θέσεις ή μεγαλύτερο τραπέζι.']};continue}
+    const tc=tab.map(l=>cost(members(l)));let cur=tc.reduce((a,b)=>a+b,0);const rt0=performance.now(),run={init:cur,it:0,acc:0,imp:0,trace:[cur]};let rbest=cur;
+    const free=C.map((c,k)=>k).filter(k=>cfix[k]<0);if(!free.length||m<2){run.final=run.best=cur;run.ms=0;runs.push(run);if(cur>bestScore){bestScore=cur;best=where.slice()}continue}
+    const IT=30000+300*C.length;let Tm=4;const cool=Math.pow(0.01/4,1/IT),every=Math.max(1,IT/100|0);run.it=IT;
+    for(let it=0;it<IT;it++,Tm*=cool){
+      const k=free[Math.random()*free.length|0],a=where[k];let b=Math.random()*(m-1)|0;if(b>=a)b++;
+      let d=-1;
+      if(load[b]+csz[k]>cap[b]){const cand=tab[b].filter(q=>cfix[q]<0&&load[a]-csz[k]+csz[q]<=cap[a]&&load[b]-csz[q]+csz[k]<=cap[b]);if(!cand.length)continue;d=cand[Math.random()*cand.length|0]}
+      const na=tab[a].filter(q=>q!==k),nb=tab[b].filter(q=>q!==d);nb.push(k);if(d>=0)na.push(d);
+      const ca=cost(members(na)),cb=cost(members(nb)),delta=ca+cb-tc[a]-tc[b];
+      if(it%every===0)run.trace.push(cur);
+      if(delta>=0||Math.random()<Math.exp(delta/Tm)){run.acc++;if(delta>0)run.imp++;tab[a]=na;tab[b]=nb;tc[a]=ca;tc[b]=cb;cur+=delta;
+        load[a]+=(d>=0?csz[d]:0)-csz[k];load[b]+=csz[k]-(d>=0?csz[d]:0);where[k]=b;if(d>=0)where[d]=a;
+        if(cur>rbest)rbest=cur;if(cur>bestScore){bestScore=cur;best=where.slice()}}
+    }
+    run.trace.push(cur);run.final=cur;run.best=rbest;run.ms=performance.now()-rt0;runs.push(run);
+    if(cur>bestScore){bestScore=cur;best=where.slice()}
+  }
+  const ms=performance.now()-t0;
+  const res={};C.forEach((c,k)=>c.forEach(i=>res[G[i].id]=T[best[k]].id));
+  const freeCap=cap.slice();C.forEach((c,k)=>{if(cfix[k]>=0)freeCap[cfix[k]]-=csz[k]});
+  const freeSizes=C.map((c,k)=>k).filter(k=>cfix[k]<0).map(k=>csz[k]);
+  const tc0=performance.now();
+  const logGroups=countLog(freeSizes,freeCap),logSingles=countLog(freeSizes.flatMap(z=>Array(z).fill(1)),freeCap);
+  const nHard=S.rels.filter(r=>r.t==='must'||r.t==='never').length,nSoft=S.rels.length-nHard;
+  return{res,stats:{ms,runs,units:C.length,n,m,free:freeSizes.length,fixed:C.length-freeSizes.length,logGroups,logSingles,countMs:performance.now()-tc0,nHard,nSoft,best:bestScore,fixedPeople:C.reduce((a,c,k)=>a+(cfix[k]>=0?csz[k]:0),0)}};
+}
+
+/* ---------- counting possible seatings (for the brute-force comparison) ----------
+   Πλήθος τρόπων να μοιραστούν οι ελεύθερες ομάδες (μεγέθη sizes) σε τραπέζια
+   με χωρητικότητες caps. Δυναμικός προγραμματισμός ανά τραπέζι, σε log10
+   ώστε να χωράνε αριθμοί σαν 10^240 χωρίς υπερχείλιση. */
+const LF=[0];for(let i=1;i<=5000;i++)LF[i]=LF[i-1]+Math.log10(i);
+const lC=(n,k)=>LF[n]-LF[k]-LF[n-k];
+const lse=(a,b)=>a===-Infinity?b:b===-Infinity?a:Math.max(a,b)+Math.log10(1+Math.pow(10,-Math.abs(a-b)));
+function countLog(sizes,caps){
+  const cnt={};sizes.forEach(z=>cnt[z]=(cnt[z]||0)+1);const Z=Object.keys(cnt).map(Number),R0=Z.map(z=>cnt[z]);
+  const suf=[];let acc=0;for(let t=caps.length-1;t>=0;t--){acc+=Math.max(0,caps[t]);suf[t]=acc}suf[caps.length]=0;
+  const memo=new Map();
+  const rec=(t,rem)=>{const need=rem.reduce((a,r,k)=>a+r*Z[k],0);if(t===caps.length)return need?-Infinity:0;if(need>suf[t])return -Infinity;
+    const key=t+'|'+rem.join(',');if(memo.has(key))return memo.get(key);let out=-Infinity;
+    const go=(k,left,lw,take)=>{if(k===Z.length){out=lse(out,lw+rec(t+1,rem.map((r,j)=>r-take[j])));return}
+      for(let c=0;c<=rem[k]&&c*Z[k]<=left;c++){take[k]=c;go(k+1,left-c*Z[k],lw+lC(rem[k],c),take)}};
+    go(0,Math.max(0,caps[t]),0,[]);memo.set(key,out);return out};
+  return rec(0,R0);
+}
+const sup=x=>String(x).replace(/-/g,'⁻').replace(/\d/g,d=>'⁰¹²³⁴⁵⁶⁷⁸⁹'[d]);
+function bigN(l){if(!isFinite(l))return '0';if(l<6)return Math.round(Math.pow(10,l)).toLocaleString('el-GR');const e=Math.floor(l),m=Math.pow(10,l-e);return m.toFixed(1).replace('.',',')+' × 10'+sup(e)}
+function dur(ls){if(!isFinite(ls))return '—';const s=Math.pow(10,ls);if(ls<-3)return '< 1 ms';if(s<1)return Math.round(s*1000)+' ms';if(s<60)return s.toFixed(1).replace('.',',')+' δευτ.';if(s<3600)return Math.round(s/60)+' λεπτά';if(s<86400)return (s/3600).toFixed(1).replace('.',',')+' ώρες';
+  const ly=ls-Math.log10(31557600);if(ly<0)return Math.round(s/86400)+' μέρες';if(ly<6)return Math.round(Math.pow(10,ly)).toLocaleString('el-GR')+' χρόνια';return bigN(ly)+' χρόνια'}
+const UNI=Math.log10(1.38e10);
+
+/* ---------- evaluation of any seating (also manual) ---------- */
+function evaluate(){
+  const res=S.res||{},G=S.guests,gi={};G.forEach(g=>gi[g.id]=g);
+  const out={warn:[],happy:0,unhappy:0,soft:0,softAll:0};
+  const load={};S.tables.forEach(t=>load[t.id]=0);
+  G.forEach(g=>{if(res[g.id] in load)load[res[g.id]]++;else out.warn.push(`${g.name}: δεν έχει θέση.`)});
+  S.tables.forEach(t=>{if(load[t.id]>t.cap)out.warn.push(`${t.name}: ${load[t.id]} άτομα σε ${t.cap} θέσεις.`)});
+  S.rels.forEach(r=>{const a=gi[r.a],b=gi[r.b];if(!a||!b)return;const same=res[r.a]&&res[r.a]===res[r.b];
+    if(r.t==='must'&&!same)out.warn.push(`${a.name} και ${b.name} πρέπει να κάθονται μαζί.`);
+    if(r.t==='never'&&same)out.warn.push(`${a.name} και ${b.name} κάθονται στο ίδιο τραπέζι.`);
+    if(r.t==='p3'||r.t==='p1'){out.softAll++;if(same)out.happy++}
+    if(r.t==='m2'){out.softAll++;if(!same)out.happy++}});
+  const soi={};G.forEach(g=>{if(!g.soi||!res[g.id])return;(soi[g.soi]=soi[g.soi]||new Set()).add(res[g.id])});
+  out.split=Object.values(soi).reduce((a,s)=>a+(s.size-1),0);
+  out.load=load;return out;
+}
+
+/* ---------- rendering ---------- */
+function renderResult(){
+  const col=soiColors(),res=S.res||{},ev=evaluate(),G=S.guests;
+  const used=Object.values(ev.load).reduce((a,b)=>a+b,0),cap=S.tables.reduce((a,t)=>a+(+t.cap||0),0);
+  $('stats').innerHTML=`<div class="stat"><b>${G.length}</b>καλεσμένοι</div><div class="stat"><b>${used}/${cap}</b>θέσεις</div>
+  <div class="stat"><b style="color:${ev.warn.length?'var(--bad)':'var(--ok)'}">${ev.warn.length}</b>προβλήματα</div>
+  <div class="stat"><b>${ev.happy}/${ev.softAll}</b>προτιμήσεις τηρήθηκαν</div><div class="stat"><b>${ev.split}</b>«σπασίματα» σογιών</div>
+  ${S.stale?'<div class="stat stale"><b>!</b>άλλαξαν τα δεδομένα: ξαναπάτα «Βρες τη διάταξη»</div>':''}`;
+  $('warns').innerHTML=ev.warn.slice(0,8).map(w=>`<div class="warn">${esc(w)}</div>`).join('')+(ev.warn.length>8?`<div class="warn">…και ${ev.warn.length-8} ακόμα</div>`:'');
+  $('floor').innerHTML=S.tables.map(t=>{
+    const ppl=G.filter(g=>res[g.id]===t.id);
+    const grp={};S.rels.filter(r=>r.t==='must').forEach(r=>{grp[r.a]=grp[r.a]||r.b});
+    ppl.sort((a,b)=>(a.soi||'').localeCompare(b.soi||'')||0);
+    const ord=[];const seen=new Set();ppl.forEach(p=>{if(seen.has(p.id))return;ord.push(p);seen.add(p.id);
+      S.rels.filter(r=>r.t==='must'&&(r.a===p.id||r.b===p.id)).forEach(r=>{const o=r.a===p.id?r.b:r.a;const q=ppl.find(x=>x.id===o);if(q&&!seen.has(q.id)){ord.push(q);seen.add(q.id)}})});
+    const c=+t.cap||0,R=68,seats=[];
+    for(let s=0;s<c;s++){const a=-Math.PI/2+s*2*Math.PI/Math.max(c,1),x=85+R*Math.cos(a),y=85+R*Math.sin(a),p=ord[s];
+      seats.push(`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${c>14?7:10}" fill="${p?col[p.soi||'—']:'none'}" stroke="${p?'none':'var(--line)'}" stroke-width="1.5"><title>${p?esc(p.name):'κενή θέση'}</title></circle>`)}
+    const over=ord.length>c;
+    return`<div class="tcard"><svg viewBox="0 0 170 170" role="img" aria-label="${esc(t.name)}: ${ord.length} από ${c}">
+      <circle cx="85" cy="85" r="50" fill="var(--table)" stroke="${over?'var(--bad)':'var(--gold)'}" stroke-width="1.5"/>${seats.join('')}
+      <text x="85" y="82" text-anchor="middle" font-family="GFS Didot,serif" font-size="17" fill="var(--plum)">${esc(t.name.length>12?t.name.slice(0,11)+'…':t.name)}</text>
+      <text x="85" y="102" text-anchor="middle" font-size="13" fill="${over?'var(--bad)':'var(--mut)'}">${ord.length}/${c}</text></svg>
+      <ol>${ord.map(p=>`<li><span class="dot" style="background:${col[p.soi||'—']}"></span>${esc(p.name)}</li>`).join('')||'<li style="list-style:none;color:var(--mut)">άδειο</li>'}</ol></div>`}).join('');
+  $('legend').innerHTML=Object.entries(col).map(([s,c])=>`<span><span class="dot" style="background:${c}"></span>${esc(s)}</span>`).join('');
+  const tOpt=id=>`<option value="">—</option>`+S.tables.map(t=>`<option value="${esc(t.id)}"${t.id===id?' selected':''}>${esc(t.name)}</option>`).join('');
+  const sorted=[...G].sort((a,b)=>a.name.localeCompare(b.name,'el'));
+  $('who').innerHTML=`<thead><tr><th>Όνομα</th><th>Σόι</th><th>Τραπέζι</th></tr></thead><tbody>`+sorted.map(g=>`<tr><td>${esc(g.name)}</td><td><span class="dot" style="background:${col[g.soi||'—']}"></span>${esc(g.soi||'—')}</td><td><select data-mv="${esc(g.id)}" aria-label="Τραπέζι για ${esc(g.name)}">${tOpt(res[g.id])}</select></td></tr>`).join('')+'</tbody>';
+  const bs={};G.forEach(g=>{(bs[g.soi||'—']=bs[g.soi||'—']||[]).push(g)});
+  const tn={};S.tables.forEach(t=>tn[t.id]=t.name);
+  $('bysoi').innerHTML=Object.entries(bs).map(([s,l])=>{const by={};l.forEach(g=>{const k=tn[res[g.id]]||'χωρίς θέση';(by[k]=by[k]||[]).push(g.name)});
+    return`<p style="margin:12px 0 4px;font-weight:500"><span class="dot" style="background:${col[s]}"></span>${esc(s)} <span class="hint">(${l.length})</span></p>`+
+    Object.entries(by).map(([t,ns])=>`<div class="hint" style="font-size:14px"><b style="color:var(--ink);font-weight:500">${esc(t)}:</b> ${ns.map(esc).join(', ')}</div>`).join('')}).join('');
+}
+function renderEditors(){
+  const tOpt=id=>`<option value="">χωρίς κλείδωμα</option>`+S.tables.map(t=>`<option value="${esc(t.id)}"${t.id===id?' selected':''}>${esc(t.name)}</option>`).join('');
+  $('tables').innerHTML=S.tables.map(t=>`<div class="row"><input type="text" data-tn="${esc(t.id)}" value="${esc(t.name)}" aria-label="Όνομα τραπεζιού"><input type="number" min="1" data-tc="${esc(t.id)}" value="${esc(t.cap)}" aria-label="Θέσεις"><button class="x" data-td="${esc(t.id)}" aria-label="Διαγραφή ${esc(t.name)}">✕</button></div>`).join('');
+  $('capinfo').textContent=`${S.tables.reduce((a,t)=>a+(+t.cap||0),0)} θέσεις για ${S.guests.length} καλεσμένους`;
+  const q=$('gq').value.trim().toLowerCase();
+  const sois=[...new Set(S.guests.map(g=>g.soi).filter(Boolean))];
+  $('guests').innerHTML=`<datalist id="soil">${sois.map(s=>`<option value="${esc(s)}">`).join('')}</datalist>`+S.guests.filter(g=>!q||(g.name+' '+g.soi).toLowerCase().includes(q)).map(g=>`<div class="row" style="border-bottom:1px solid var(--line);padding-bottom:6px"><input type="text" data-gn="${esc(g.id)}" value="${esc(g.name)}" aria-label="Όνομα"><input type="text" list="soil" data-gs="${esc(g.id)}" value="${esc(g.soi)}" placeholder="Σόι" aria-label="Σόι"><select data-gf="${esc(g.id)}" aria-label="Κλείδωμα σε τραπέζι">${tOpt(g.fix)}</select><button class="x" data-gd="${esc(g.id)}" aria-label="Διαγραφή ${esc(g.name)}">✕</button></div>`).join('');
+  const gOpt=[...S.guests].sort((a,b)=>a.name.localeCompare(b.name,'el')).map(g=>`<option value="${esc(g.id)}">${esc(g.name)}</option>`).join('');
+  const ka=$('ra').value,kb=$('rb').value;$('ra').innerHTML=gOpt;$('rb').innerHTML=gOpt;if(ka)$('ra').value=ka;if(kb)$('rb').value=kb;
+  const gn={};S.guests.forEach(g=>gn[g.id]=g.name);
+  $('rels').innerHTML=S.rels.filter(r=>gn[r.a]&&gn[r.b]).map((r,i)=>`<div class="row" style="justify-content:space-between;border-bottom:1px solid var(--line);padding-bottom:4px"><span>${esc(gn[r.a])} <span class="pill ${r.t==='never'||r.t==='m2'?'nv':''}">${REL[r.t]}</span> ${esc(gn[r.b])}</span><button class="x" data-rd="${i}" aria-label="Διαγραφή κανόνα">✕</button></div>`).join('')||'<p class="hint">Κανένας κανόνας ακόμα.</p>';
+  $('w').value=S.w;$('wout').textContent=['καθόλου','λίγο','λίγο','μέτρια','μέτρια','πολύ','πάρα πολύ'][Math.round(S.w*2)];
+}
+
+function renderDebug(){
+  const el=$('debug');const st=LAST;
+  if(!st){el.innerHTML='<p class="hint">Πάτα «Βρες τη διάταξη» για να εμφανιστούν τα στατιστικά της εκτέλεσης.</p>';return}
+  const RATE=9,ls=st.ms/1000,lsec=Math.log10(Math.max(ls,1e-6));
+  const bfG=st.logGroups-RATE,bfS=st.logSingles-RATE,gain=bfG-lsec;
+  const uni=l=>{const ly=l-Math.log10(31557600);return ly>UNI?' ('+bigN(ly-UNI)+' × ηλικία σύμπαντος)':''};
+  const best=st.runs.reduce((a,r)=>r.final>a.final?r:a,st.runs[0]||{final:0,trace:[]});
+  const tr=best.trace||[],mn=Math.min(...tr),mx=Math.max(...tr),W=600,H=120;
+  const pts=tr.map((v,i)=>`${(i/(Math.max(1,tr.length-1))*W).toFixed(1)},${(H-6-(mx===mn?0.5:(v-mn)/(mx-mn))*(H-12)).toFixed(1)}`).join(' ');
+  const pr=(d,T)=>Math.round(100*Math.exp(d/T))+'%';
+  el.innerHTML=`
+  <div class="stats">
+    <div class="stat"><b>${st.ms<1000?Math.round(st.ms)+' ms':(st.ms/1000).toFixed(2).replace('.',',')+' δευτ.'}</b>χρόνος επίλυσης</div>
+    <div class="stat"><b>${bigN(st.logGroups)}</b>πιθανές διατάξεις</div>
+    <div class="stat"><b>${dur(bfG)}</b>με brute force</div>
+    <div class="stat"><b>${isFinite(gain)&&gain>0?'10'+sup(Math.round(gain))+' ×':'—'}</b>πιο γρήγορα</div>
+  </div>
+  <h3>Υποθετικό σενάριο: brute force</h3>
+  <p class="hint">Υπολογιστής που ελέγχει 1 δισεκατομμύριο διατάξεις το δευτερόλεπτο. Μετράμε μόνο τους τρόπους να μπουν οι ελεύθεροι καλεσμένοι στα τραπέζια χωρίς να ξεπεραστεί η χωρητικότητα· οι κλειδωμένοι μένουν στη θέση τους.</p>
+  <div class="scroll"><table class="stack"><thead><tr><th>Σενάριο</th><th>Μονάδες</th><th>Πιθανές διατάξεις</th><th>Χρόνος brute force</th></tr></thead><tbody>
+    <tr><td>Κάθε καλεσμένος ξεχωριστά</td><td>${st.n-st.fixedPeople}</td><td>${bigN(st.logSingles)}</td><td>${dur(bfS)}${uni(bfS)}</td></tr>
+    <tr><td>Με τους κανόνες «μαζί» (ομάδες)</td><td>${st.free}</td><td>${bigN(st.logGroups)}</td><td>${dur(bfG)}${uni(bfG)}</td></tr>
+    <tr><td>Αυτή η σελίδα (ανόπτηση)</td><td>${st.units}</td><td>${(st.runs.reduce((a,r)=>a+r.it,0)).toLocaleString('el-GR')} δοκιμές</td><td>${st.ms<1000?Math.round(st.ms)+' ms':(st.ms/1000).toFixed(2).replace('.',',')+' δευτ.'}</td></tr>
+  </tbody></table></div>
+  <p class="hint">Οι κανόνες «μαζί» μόνοι τους μείωσαν τις διατάξεις ${isFinite(st.logSingles-st.logGroups)?bigN(st.logSingles-st.logGroups):'—'} φορές. Οι κανόνες «ποτέ μαζί» δεν μειώνουν το πλήθος για το brute force: θα έπρεπε να ελέγξει κάθε διάταξη και να απορρίψει όσες τους παραβιάζουν.</p>
+
+  <h3>Debug εκτέλεσης</h3>
+  <div class="scroll"><table><tbody>
+    <tr><td>Καλεσμένοι / μονάδες (ομάδες «μαζί»)</td><td>${st.n} / ${st.units} (${st.fixed} κλειδωμένες, ${st.free} ελεύθερες)</td></tr>
+    <tr><td>Τραπέζια</td><td>${st.m}</td></tr>
+    <tr><td>Κανόνες σκληροί / μαλακοί</td><td>${st.nHard} / ${st.nSoft}</td></tr>
+    <tr><td>Βάρος σογιού</td><td>${S.w} (μοιράζεται στα μέλη κάθε σογιού)</td></tr>
+    <tr><td>Καλύτερο σκορ</td><td>${st.best.toFixed(2).replace('.',',')}</td></tr>
+    <tr><td>Χρόνος μέτρησης διατάξεων</td><td>${Math.round(st.countMs)} ms</td></tr>
+  </tbody></table></div>
+  <div class="scroll" style="margin-top:12px"><table class="stack"><thead><tr><th>Επανεκκίνηση</th><th class="n">Αρχικό σκορ</th><th class="n">Τελικό σκορ</th><th class="n">Δοκιμές</th><th class="n">Αποδεκτές</th><th class="n">Βελτιώσεις</th><th class="n">Χρόνος</th></tr></thead><tbody>
+  ${st.runs.map((r,i)=>`<tr${r===best?' style="font-weight:500"':''}><td>${i+1}${r===best?' (καλύτερη)':''}</td><td class="n">${r.init.toFixed(1).replace('.',',')}</td><td class="n">${r.final.toFixed(1).replace('.',',')}</td><td class="n">${r.it.toLocaleString('el-GR')}</td><td class="n">${r.acc.toLocaleString('el-GR')}</td><td class="n">${r.imp.toLocaleString('el-GR')}</td><td class="n">${Math.round(r.ms)} ms</td></tr>`).join('')}
+  </tbody></table></div>
+  <p class="hint" style="margin-top:12px">Εξέλιξη σκορ στην καλύτερη επανεκκίνηση (${tr.length} δείγματα, από ${mn.toFixed(1).replace('.',',')} έως ${mx.toFixed(1).replace('.',',')}):</p>
+  <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" style="width:100%;height:120px;display:block;background:var(--panel);border-radius:10px" role="img" aria-label="Γράφημα σκορ ανά δοκιμή"><polyline points="${pts}" fill="none" stroke="var(--plum)" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>
+
+  <h3>Πιθανότητα να δεχτεί μια χειρότερη κίνηση</h3>
+  <p class="hint">Η ανόπτηση δέχεται μερικές φορές και χειρότερες αλλαγές, για να μην κολλήσει. Πιθανότητα = e<sup>Δ/T</sup>, όπου Δ η απώλεια σκορ και T η «θερμοκρασία» που πέφτει από 4 σε 0,01.</p>
+  <div class="scroll"><table><thead><tr><th>Απώλεια σκορ</th><th class="n">Αρχή (T=4)</th><th class="n">Μέση (T≈0,2)</th><th class="n">Τέλος (T=0,01)</th></tr></thead><tbody>
+  ${[-1,-2,-3,-5].map(d=>`<tr><td>${d}</td><td class="n">${pr(d,4)}</td><td class="n">${pr(d,0.2)}</td><td class="n">${pr(d,0.01)}</td></tr>`).join('')}
+  </tbody></table></div>`;
+}
+
+/* ---------- events ---------- */
+$('go').onclick=()=>{$('go').textContent='Ψάχνω…';setTimeout(()=>{const r=solve();$('go').textContent='Βρες τη διάταξη';
+  if(r.err){$('warns').innerHTML=r.err.map(e=>`<div class="warn">${esc(e)}</div>`).join('');return}
+  S.res=r.res;S.stale=false;LAST=r.stats;save();renderResult();renderDebug();document.querySelectorAll('.tcard').forEach(c=>c.classList.add('pop'))},30)};
+$('copy').onclick=async()=>{const res=S.res||{};const txt=S.tables.map(t=>t.name+':\n'+S.guests.filter(g=>res[g.id]===t.id).map(g=>'  '+g.name).join('\n')).join('\n\n');
+  try{await navigator.clipboard.writeText(txt);$('copy').textContent='Αντιγράφηκε'}catch(e){$('copy').textContent='Δεν επιτράπηκε η αντιγραφή'}setTimeout(()=>$('copy').textContent='Αντιγραφή λίστας',1800)};
+document.addEventListener('input',e=>{const d=e.target.dataset;
+  if(d.tn){S.tables.find(t=>t.id===d.tn).name=e.target.value;S.stale=true;save();renderResult()}
+  else if(d.tc){S.tables.find(t=>t.id===d.tc).cap=Math.max(1,+e.target.value||1);S.stale=true;save();renderResult();$('capinfo').textContent=`${S.tables.reduce((a,t)=>a+(+t.cap||0),0)} θέσεις για ${S.guests.length} καλεσμένους`}
+  else if(d.gn){S.guests.find(g=>g.id===d.gn).name=e.target.value;S.stale=true;save();renderResult()}
+  else if(d.gs){S.guests.find(g=>g.id===d.gs).soi=e.target.value;S.stale=true;save();renderResult()}
+  else if(e.target.id==='gq')renderEditors();
+  else if(e.target.id==='w'){S.w=+e.target.value;changed()}});
+document.addEventListener('change',e=>{const d=e.target.dataset;
+  if(d.gf){S.guests.find(g=>g.id===d.gf).fix=e.target.value;changed()}
+  else if(d.mv){S.res=S.res||{};S.res[d.mv]=e.target.value;save();renderResult()}
+  else if(d.tn||d.gn||d.gs)renderEditors()});
+document.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const d=b.dataset;
+  if(d.td){S.tables=S.tables.filter(t=>t.id!==d.td);changed()}
+  else if(d.gd){S.guests=S.guests.filter(g=>g.id!==d.gd);S.rels=S.rels.filter(r=>r.a!==d.gd&&r.b!==d.gd);changed()}
+  else if(d.rd!=null){const gn={};S.guests.forEach(g=>gn[g.id]=1);const vis=S.rels.filter(r=>gn[r.a]&&gn[r.b]);S.rels=S.rels.filter(r=>r!==vis[+d.rd]);changed()}});
+$('addT').onclick=()=>{S.tables.push({id:nid('t'),name:'Τραπέζι '+(S.tables.length+1),cap:10});changed()};
+$('addQ').onclick=()=>{const k=Math.max(1,+$('qn').value||1),c=Math.max(1,+$('qc').value||1);for(let i=0;i<k;i++)S.tables.push({id:nid('t'),name:'Τραπέζι '+(S.tables.length+1),cap:c});changed()};
+$('addG').onclick=()=>{S.guests.push({id:nid('g'),name:'Νέος καλεσμένος',soi:'',fix:''});$('gq').value='';changed()};
+$('bulkGo').onclick=()=>{const lines=$('bulk').value.split('\n').map(l=>l.trim()).filter(Boolean);lines.forEach(l=>{const[n,...s]=l.split(/[,;\t]/);S.guests.push({id:nid('g'),name:n.trim(),soi:s.join(',').trim(),fix:''})});$('bulk').value='';changed()};
+$('addR').onclick=()=>{const a=$('ra').value,b=$('rb').value,t=$('rt').value;if(!a||!b||a===b){$('rerr').textContent='Διάλεξε δύο διαφορετικούς καλεσμένους.';return}$('rerr').textContent='';
+  S.rels=S.rels.filter(r=>!((r.a===a&&r.b===b)||(r.a===b&&r.b===a)));S.rels.push({a,b,t});changed()};
+['ra','rb'].forEach(id=>$(id).addEventListener('change',()=>$('rerr').textContent=''));
+$('reset').onclick=()=>{S=sample();save();renderEditors();$('go').click()};
+let armed=false;$('clear').onclick=()=>{if(!armed){armed=true;$('clear').textContent='Σίγουρα; Πάτα ξανά';setTimeout(()=>{armed=false;$('clear').textContent='Καθαρισμός'},3000);return}
+  armed=false;$('clear').textContent='Καθαρισμός';S={tables:[{id:nid('t'),name:'Τραπέζι 1',cap:10}],guests:[],rels:[],w:1,res:null,stale:true};$('sample').style.display='none';changed()};
+renderEditors();renderDebug();
+if(S.stale||!S.res)$('go').click();else renderResult();
+}
+</script>
+</body>
+</html>
